@@ -1,93 +1,77 @@
 # LogSpotAI
 
-A lightweight **AI-assisted log analysis tool** written in Python. LogSpotAI helps you detect suspicious or anomalous log entries using a large language model (LLM) or other AI methods. The entire project is kept minimal, with just one or two Python files, so it's easy to understand, modify, and extend.
+Small defensive log-review script that sends chunks of a local log file to an OpenAI model and prints the lines the model flags as suspicious.
 
-## Features
+This is intentionally a minimal experiment, not a SIEM, detector, or production incident-response system. It is useful as a readable baseline for AI-assisted triage workflows and prompt design.
 
-- **Simple CLI**: Pass in your log file, get back suspicious lines.
-- **AI-Powered**: Uses OpenAI's API (or switch to your preferred AI model).
-- **Minimal**: Only one main Python script + this README + requirements.
-- **Extendable**: You can adapt it for various log formats and different AI endpoints.
+Keywords: log analysis, security logs, AI-assisted triage, defensive security, OpenAI, Python.
 
-## Getting Started
+## Safety And Privacy
 
-### 1. Clone the Repository
+- Review logs before sending them to any hosted model.
+- Do not send secrets, personal data, customer data, credentials, or regulated records.
+- Treat the output as analyst assistance, not a finding by itself.
+- Validate suspicious lines manually.
 
-```bash
-git clone https://github.com/heinrihs-s/LogSpotAI.git
-cd LogSpotAI
-```
+## Requirements
 
-### 2. Create a Virtual Environment
+- Python 3.10+
+- OpenAI Python SDK
+- `OPENAI_API_KEY`
+- `OPENAI_MODEL`
 
-```bash
-# On Linux/Mac
-python -m venv venv
-source venv/bin/activate
-
-# On Windows
-python -m venv venv
-.\venv\Scripts\activate
-```
-
-### 3. Install Dependencies
+Install:
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Set Up Your OpenAI API Key
+On Windows PowerShell:
 
-* Sign up or log in to OpenAI to get an API key
-* Export the key as an environment variable:
-
-```bash
-# Linux/Mac
-export OPENAI_API_KEY="your_secret_key"
-
-# Windows (Command Prompt)
-set OPENAI_API_KEY="your_secret_key"
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 ```
 
-Or create a `.env` file (if you add `python-dotenv` support) to store your key locally.
+## Usage
 
-### 5. Usage
-
-Basic usage:
 ```bash
-python ailogger.py --logfile /path/to/your.log
+export OPENAI_API_KEY="..."
+export OPENAI_MODEL="your-model-name"
+python aiLogger.py --logfile /path/to/logfile.log
 ```
 
-Example with sample log:
-```bash
-python ailogger.py --logfile sample.log
+On Windows PowerShell:
+
+```powershell
+$env:OPENAI_API_KEY="..."
+$env:OPENAI_MODEL="your-model-name"
+python .\aiLogger.py --logfile .\sample.log
 ```
 
-* The script reads your logs, batches them, and queries the AI model to identify potentially suspicious lines
-* Suspicious lines are then printed out for review
+The script:
 
+1. reads non-empty log lines,
+2. batches them into small chunks,
+3. asks the model for suspicious line numbers,
+4. prints the original flagged lines for review.
 
-## Customization
+## Limits
 
-* **Local Models**: If you prefer not to use the OpenAI API, switch to a local anomaly-detection model (e.g., scikit-learn's `IsolationForest` or a small transformer)
-* **Thresholding**: For local models, you can tweak detection thresholds to adjust sensitivity
-* **Log Parsing**: Enhance the `parse_logfile` function to handle different log formats (JSON logs, Apache logs, etc.)
-* **Report Generation**: Output results to a separate file, or incorporate visualizations if you want
+- No structured parser yet.
+- No redaction layer yet.
+- No deterministic detection rules.
+- No guarantee that the model catches the important line.
 
-## Contributing
+For production work, pair model-assisted review with deterministic parsing, local redaction, SIEM rules, and human verification.
 
-Contributions, issues, and feature requests are welcome! Feel free to open a PR or issue on the GitHub repository.
+## Agent-Friendly Workflow
+
+This repo includes `AGENTS.md` for Codex, Claude Code, and other coding agents. Good next tasks include local redaction, synthetic sample logs, structured JSON output, deterministic prefilters, and local-model adapters.
 
 ## License
 
-This project is licensed under the MIT License. You are free to use, modify, and distribute this software as you see fit, but attribution is appreciated.
-
----
-
-### Additional Tips
-
-1. If you want to keep everything in just *one* Python file, you can place your CLI and AI logic all in ailogger.py and skip any separate scripts
-2. Add a sample log file (`sample.log`) and demonstrate how the script flags suspicious lines
-3. Consider adding a small test script or a test folder with example inputs and outputs
-
-Happy Logging with **LogSpotAI**!
+MIT. See `LICENSE`.
